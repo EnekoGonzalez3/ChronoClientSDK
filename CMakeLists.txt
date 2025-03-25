@@ -5,6 +5,9 @@ project(ChronoClientSDK LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+find_package(Thallium REQUIRED)
+message(STATUS "Thallium found: ${THALLIUM_INCLUDE_DIRS}")
+
 # Add ChronoCommon as a subdirectory. Its CMakeLists.txt should define a target (e.g., ChronoCommon).
 add_subdirectory(third_party/ChronoCommon)
 
