@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include "chronolog_types.h"
+#include "chronolog_errcode.h"
 
 namespace chronolog
 {

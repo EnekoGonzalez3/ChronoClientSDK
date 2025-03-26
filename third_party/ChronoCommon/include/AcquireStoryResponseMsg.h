@@ -5,6 +5,7 @@
 #include "chronolog_types.h"
 #include "ServiceId.h"
 #include "KeeperIdCard.h"
+#include "chronolog_errcode.h"
 
 namespace chronolog
 {
