@@ -5,11 +5,22 @@ project(ChronoClientSDK LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Find Thallium.
+# --- Find Margo via pkg-config ---
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(MARGO REQUIRED margo)
+message(STATUS "Margo found, version: ${MARGO_VERSION}")
+
+# Create an imported target for Margo.
+add_library(Margo::margo UNKNOWN IMPORTED)
+set_target_properties(Margo::margo PROPERTIES
+    INTERFACE_INCLUDE_DIRECTORIES "${MARGO_INCLUDE_DIRS}"
+    IMPORTED_LOCATION "${MARGO_LIBRARIES}"
+)
+
+# --- Find Thallium ---
 find_package(Thallium REQUIRED)
 message(STATUS "Thallium found: ${THALLIUM_INCLUDE_DIRS}")
 
-# If THALLIUM_INCLUDE_DIRS is empty, try to locate thallium.hpp manually.
 if(NOT THALLIUM_INCLUDE_DIRS)
     find_path(THALLIUM_INCLUDE_DIRS NAMES thallium.hpp)
     if(THALLIUM_INCLUDE_DIRS)
@@ -31,15 +42,14 @@ add_library(chronolog_client
 target_include_directories(chronolog_client PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/ChronoCommon/include
-    ${THALLIUM_INCLUDE_DIRS}  # Use the detected Thallium include directory.
+    ${THALLIUM_INCLUDE_DIRS}
 )
 
-# Link ChronoCommon and Thallium with your SDK library.
+# Link ChronoCommon, Thallium, and Margo with your SDK library.
 if(TARGET Thallium::thallium)
-    # If the imported target Thallium::thallium is available, link to it.
-    target_link_libraries(chronolog_client PUBLIC ChronoCommon Thallium::thallium)
+    target_link_libraries(chronolog_client PUBLIC ChronoCommon Thallium::thallium Margo::margo)
 else()
-    target_link_libraries(chronolog_client PUBLIC ChronoCommon ${THALLIUM_LIBRARIES})
+    target_link_libraries(chronolog_client PUBLIC ChronoCommon ${THALLIUM_LIBRARIES} Margo::margo)
 endif()
 
 # Build an example executable that links against your client library.
