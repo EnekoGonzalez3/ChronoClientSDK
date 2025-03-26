@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.13)
 project(ChronoClientSDK LANGUAGES CXX)
 
 # Set the C++ standard.
@@ -10,11 +10,12 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(MARGO REQUIRED margo)
 message(STATUS "Margo found, version: ${MARGO_VERSION}")
 
-# Create an imported target for Margo.
-add_library(Margo::margo UNKNOWN IMPORTED)
+# Create an INTERFACE imported target for Margo.
+add_library(Margo::margo INTERFACE IMPORTED)
 set_target_properties(Margo::margo PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES "${MARGO_INCLUDE_DIRS}"
-    IMPORTED_LOCATION "${MARGO_LIBRARIES}"
+    INTERFACE_LINK_LIBRARIES "${MARGO_LIBRARIES}"
+    INTERFACE_LINK_DIRECTORIES "${MARGO_LIBRARY_DIRS}"
 )
 
 # --- Find Thallium ---
