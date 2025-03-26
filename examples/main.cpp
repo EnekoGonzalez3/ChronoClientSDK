@@ -14,18 +14,20 @@ int main() {
     uint32_t client_account = 1234;
     uint32_t client_host_ip = 0x7F000001; // 127.0.0.1 in hex
     uint32_t client_pid = 4321;
-    int connect_rc = client.connect(client_account, client_host_ip, client_pid);
 
-    if (connect_rc == 0) {
-        std::cout << "Connected successfully!" << std::endl;
+    ConnectResponseMsg connect_response = client.connect(client_account, client_host_ip, client_pid);
+
+    if (connect_response.status == 0) {
+        std::cout << "Connected successfully! Client ID: " << connect_response.client_id << std::endl;
     } else {
-        std::cout << "Connection failed with code: " << connect_rc << std::endl;
+        std::cout << "Connection failed with code: " << connect_response.status << std::endl;
+        return 1;
     }
 
     // Example: Create a chronicle
     int flags = 0;
     std::map<std::string, std::string> attrs = { {"description", "Test chronicle"} };
-    int create_rc = client.createChronicle(client_account, "TestChronicle", attrs, flags);
+    int create_rc = client.createChronicle(connect_response.client_id, "TestChronicle", attrs, flags);
     if (create_rc == 0) {
         std::cout << "Chronicle created!" << std::endl;
     } else {
@@ -33,7 +35,7 @@ int main() {
     }
 
     // Example: Disconnect
-    int disconnect_rc = client.disconnect(client_account);
+    int disconnect_rc = client.disconnect(connect_response.client_id);
     if (disconnect_rc == 0) {
         std::cout << "Disconnected successfully!" << std::endl;
     } else {
