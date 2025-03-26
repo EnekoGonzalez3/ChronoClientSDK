@@ -1,0 +1,12 @@
+spack:
+  specs:
+    - mochi-thallium
+    - mochi-margo
+    - mercury
+    - argobots
+    - cereal
+    - json-c
+    - hdf5@1.14.1+hl+cxx+threadsafe
+    - spdlog
+    - mpich
+  view: true
