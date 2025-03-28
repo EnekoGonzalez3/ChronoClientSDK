@@ -55,13 +55,13 @@ else()
     target_link_libraries(chronolog_client PUBLIC ChronoCommon ${THALLIUM_LIBRARIES} Margo::margo)
 endif()
 
-# Build an example executable that links against your client library.
+# Build a minimal example executable that links against your client library.
 add_executable(example_app examples/main.cpp)
 target_link_libraries(example_app PRIVATE chronolog_client)
 
 include(CMakePackageConfigHelpers)
 
-# Export the chronolog_client target
+# Export the chronolog_client target.
 install(TARGETS chronolog_client
     EXPORT ChronoClientSDKTargets
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -74,6 +74,9 @@ install(EXPORT ChronoClientSDKTargets
     NAMESPACE ChronoClientSDK::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ChronoClientSDK
 )
+
+# Install public headers.
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 # Configure the package config file.
 configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/ChronoClientSDKConfig.cmake.in
