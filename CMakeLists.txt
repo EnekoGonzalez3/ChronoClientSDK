@@ -41,9 +41,11 @@ add_library(chronolog_client
 
 # Specify include directories for chronolog_client.
 target_include_directories(chronolog_client PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/ChronoCommon/include
-    ${THALLIUM_INCLUDE_DIRS}
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third_party/ChronoCommon/include>
+  $<INSTALL_INTERFACE:include>
+  $<INSTALL_INTERFACE:third_party/ChronoCommon/include>
+  ${THALLIUM_INCLUDE_DIRS}
 )
 
 # Link ChronoCommon, Thallium, and Margo with your SDK library.
@@ -56,3 +58,37 @@ endif()
 # Build an example executable that links against your client library.
 add_executable(example_app examples/main.cpp)
 target_link_libraries(example_app PRIVATE chronolog_client)
+
+include(CMakePackageConfigHelpers)
+
+# Export the chronolog_client target
+install(TARGETS chronolog_client
+    EXPORT ChronoClientSDKTargets
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+install(EXPORT ChronoClientSDKTargets
+    FILE ChronoClientSDKTargets.cmake
+    NAMESPACE ChronoClientSDK::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ChronoClientSDK
+)
+
+# Configure the package config file.
+configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/ChronoClientSDKConfig.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/ChronoClientSDKConfig.cmake
+  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ChronoClientSDK
+)
+
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/ChronoClientSDKConfigVersion.cmake
+  VERSION 1.0.0
+  COMPATIBILITY AnyNewerVersion
+)
+
+install(FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/ChronoClientSDKConfig.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/ChronoClientSDKConfigVersion.cmake
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/ChronoClientSDK
+)
