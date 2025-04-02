@@ -4,85 +4,151 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <thallium.hpp>
 
-namespace chronolog {
+#include "ConfigurationManager.h" 
+#include "ClientConfiguration.h"
 
-struct ConnectResult {
-    int status;
-    uint32_t client_id;
-};
+namespace chronolog
+{
 
-struct AcquireStoryResult {
-    int status;
-    std::string story_id;
-};
+typedef std::string StoryName;
+typedef std::string ChronicleName;
+typedef uint64_t ClientId;
+typedef uint64_t chrono_time;
+typedef uint32_t chrono_index;
 
-class ChronoLogClient {
+class Event
+{
 public:
-    ChronoLogClient(const std::string& server_address, uint16_t provider_id);
-    ~ChronoLogClient();
 
-    ConnectResult connect(uint32_t client_account,
-                          uint32_t client_host_ip,
-                          uint32_t client_pid);
+    Event(chrono_time event_time = 0, ClientId client_id = 0, chrono_index index = 0, std::string const &record = std::string())
+        : eventTime(event_time)
+        , clientId(client_id)
+        , eventIndex(index)
+        , logRecord(record)
+    { }
 
-    int disconnect(uint32_t client_token);
+    uint64_t time() const
+    { return eventTime; }
 
-    int createChronicle(uint32_t client_id,
-                        const std::string& chronicle_name,
-                        const std::map<std::string, std::string>& attrs,
-                        int flags);
+    ClientId const & client_id() const
+    { return clientId; }
 
-    int destroyChronicle(uint32_t client_id,
-                         const std::string& chronicle_name);
+    uint32_t index() const
+    { return eventIndex; }
 
-    AcquireStoryResult acquireStory(uint32_t client_id,
-                                    const std::string& chronicle_name,
-                                    const std::string& story_name,
-                                    const std::map<std::string, std::string>& attrs,
-                                    int flags);
+    std::string const& log_record() const
+    { return logRecord; }
 
-    int releaseStory(uint32_t client_id,
-                     const std::string& chronicle_name,
-                     const std::string& story_name);
+    Event( Event const& other)
+        : eventTime(other.time())
+        , clientId(other.client_id())
+        , eventIndex(other.index())
+        , logRecord(other.log_record())
+    { }
 
-    int destroyStory(uint32_t client_id,
-                     const std::string& chronicle_name,
-                     const std::string& story_name);
+    Event& operator= (const Event & other) 
+    {
+        if (this != &other) 
+        {
+            eventTime = other.time();
+            clientId = other.client_id();
+            eventIndex = other.index();
+            logRecord = other.log_record();
+        }
+        return *this;
+    }
 
-    int getChronicleAttr(uint32_t client_id,
-                         const std::string& chronicle_name,
-                         const std::string& key,
-                         std::string& value);
+    bool operator== (const Event &other) const
+    {
+        return (eventTime == other.eventTime && clientId == other.clientId && eventIndex == other.eventIndex );
+    }
 
-    int editChronicleAttr(uint32_t client_id,
-                          const std::string& chronicle_name,
-                          const std::string& key,
-                          const std::string& value);
+    bool operator!= (const Event &other) const
+    { return !(*this == other); }
 
-    std::vector<std::string> showChronicles(uint32_t client_id);
-    std::vector<std::string> showStories(uint32_t client_id,
-                                         const std::string& chronicle_name);
+    bool operator< (const Event &other) const
+    {
+        if( ( eventTime < other.time() ) 
+           || (eventTime == other.time() && clientId < other.client_id()) 
+           || (eventTime == other.time() && clientId == other.client_id() && eventIndex < other.index()) 
+          )
+        { 
+            return true; 
+        }
+        else
+        {
+            return false; 
+        }
+    }
+
+
+    inline std::string toString() const
+    {
+        return  "{Event: " + std::to_string(eventTime) + ":" + std::to_string(clientId) + ":" + std::to_string(eventIndex) +
+                          ":" + logRecord +"}";
+    }
 
 private:
-    thallium::engine m_engine;
-    thallium::endpoint m_server_ep;
-    uint16_t m_provider_id;
+    
+    uint64_t eventTime;
+    ClientId clientId;
+    uint32_t eventIndex;
+    std::string logRecord;
 
-    thallium::remote_procedure m_connect_rpc;
-    thallium::remote_procedure m_disconnect_rpc;
-    thallium::remote_procedure m_create_chronicle_rpc;
-    thallium::remote_procedure m_destroy_chronicle_rpc;
-    thallium::remote_procedure m_acquire_story_rpc;
-    thallium::remote_procedure m_release_story_rpc;
-    thallium::remote_procedure m_destroy_story_rpc;
-    thallium::remote_procedure m_get_chronicle_attr_rpc;
-    thallium::remote_procedure m_edit_chronicle_attr_rpc;
-    thallium::remote_procedure m_show_chronicles_rpc;
-    thallium::remote_procedure m_show_stories_rpc;
 };
 
-} // namespace chronolog
+class StoryHandle
+{
+public:
+    virtual  ~StoryHandle();
 
-#endif // CHRONOLOG_CLIENT_H
+    virtual int log_event(std::string const &) = 0;
+
+    virtual int playback_story(uint64_t start, uint64_t end, std::vector<Event> & playback_events) = 0;
+};
+
+class ChronologClientImpl;
+
+// top level Chronolog Client...
+// implementation details are in the ChronologClientImpl class 
+class Client
+{
+public:
+    Client(ChronoLog::ConfigurationManager const &);
+    
+    Client(ClientPortalServiceConf const &);
+
+    ~Client();
+
+    int Connect();
+
+    int Disconnect();
+
+    int CreateChronicle(std::string const &chronicle_name, std::map <std::string, std::string> const &attrs , int &flags);
+
+    int DestroyChronicle(std::string const &chronicle_name);
+
+    std::pair <int, StoryHandle*> AcquireStory(std::string const &chronicle_name, std::string const &story_name
+                                               , const std::map <std::string, std::string> &attrs
+                                               , int &flags);
+
+    int ReleaseStory(std::string const &chronicle_name, std::string const &story_name);
+
+    int DestroyStory(std::string const &chronicle_name, std::string const &story_name);
+
+    int GetChronicleAttr(std::string const &chronicle_name, const std::string &key, std::string &value);
+
+    int EditChronicleAttr(std::string const &chronicle_name, const std::string &key, const std::string &value);
+
+    std::vector <std::string> &ShowChronicles(std::vector <std::string> &);
+
+    std::vector <std::string> &ShowStories(std::string const &chronicle_name, std::vector <std::string> &);
+
+private:
+    ChronologClientImpl*chronologClientImpl;
+};
+
+} //namespace chronolog
+
+#endif 
