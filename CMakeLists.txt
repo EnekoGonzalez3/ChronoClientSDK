@@ -54,9 +54,7 @@ find_package(HDF5 REQUIRED COMPONENTS CXX)
 message(STATUS "HDF5 found: ${HDF5_INCLUDE_DIRS}")
 
 # --- Gather Sources ---
-
 # List all .cpp files that will form the chronolog_client library.
-# These include both the original chronolog_client.cpp and the former ChronoCommon sources.
 set(SOURCES
     src/ChronologClient.cpp
     src/ConfigurationManager.cpp
