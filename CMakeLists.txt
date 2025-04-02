@@ -61,9 +61,6 @@ set(SOURCES
     src/ChronologClient.cpp
     src/ConfigurationManager.cpp
     src/StoryChunk.cpp
-    src/StoryChunkExtractor.cpp
-    src/StoryChunkWriter.cpp
-    src/StoryPipeline.cpp
     src/chrono_monitor.cpp
     src/ChronologClientImpl.cpp
     src/ClientQueryService.cpp
