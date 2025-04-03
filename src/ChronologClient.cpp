@@ -1,10 +1,10 @@
 #include "ChronologClientImpl.h"
 
 
-chronolog::Client::Client(ChronoLog::ConfigurationManager const &confManager)
+/*chronolog::Client::Client(ChronoLog::ConfigurationManager const &confManager)
 {
     chronologClientImpl = chronolog::ChronologClientImpl::GetClientImplInstance(confManager);
-}
+}*/
 
 chronolog::Client::Client(chronolog::ClientPortalServiceConf const &visorClientPortalServiceConf)
 {

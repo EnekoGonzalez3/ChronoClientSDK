@@ -57,7 +57,7 @@ message(STATUS "HDF5 found: ${HDF5_INCLUDE_DIRS}")
 # List all .cpp files that will form the chronolog_client library.
 set(SOURCES
     src/ChronologClient.cpp
-    src/ConfigurationManager.cpp
+    #src/ConfigurationManager.cpp
     src/StoryChunk.cpp
     src/chrono_monitor.cpp
     src/ChronologClientImpl.cpp

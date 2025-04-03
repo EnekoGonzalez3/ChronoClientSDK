@@ -9,7 +9,7 @@ namespace chl = chronolog;
 std::mutex chronolog::ChronologClientImpl::chronologClientMutex;
 chronolog::ChronologClientImpl*chronolog::ChronologClientImpl::chronologClientImplInstance{nullptr};
 
-
+/*
 chronolog::ChronologClientImpl*
 chronolog::ChronologClientImpl::GetClientImplInstance(ChronoLog::ConfigurationManager const &confManager)
 {
@@ -20,7 +20,7 @@ chronolog::ChronologClientImpl::GetClientImplInstance(ChronoLog::ConfigurationMa
     }
 
     return chronologClientImplInstance;
-}
+}*/
 
 
 chronolog::ChronologClientImpl*chronolog::ChronologClientImpl::GetClientImplInstance(
@@ -42,7 +42,7 @@ chronolog::ChronologClientImpl*chronolog::ChronologClientImpl::GetClientImplInst
 }
 
 ////////
-chronolog::ChronologClientImpl::ChronologClientImpl(const ChronoLog::ConfigurationManager &confManager)
+/*chronolog::ChronologClientImpl::ChronologClientImpl(const ChronoLog::ConfigurationManager &confManager)
         : clientState(UNKNOWN)
         , clientLogin("")
         , hostId(0) , pid(0) , clientId(0)
@@ -71,7 +71,7 @@ chronolog::ChronologClientImpl::ChronologClientImpl(const ChronoLog::Configurati
                                                                , confManager.CLIENT_CONF.VISOR_CLIENT_PORTAL_SERVICE_CONF.RPC_CONF.SERVICE_PROVIDER_ID);
 
     //tlEngine->wait_for_finalize();
-}
+}*/
 ///////////////
 
 chronolog::ChronologClientImpl::ChronologClientImpl(

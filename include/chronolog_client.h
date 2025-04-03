@@ -5,7 +5,7 @@
 #include <vector>
 #include <map>
 
-#include "ConfigurationManager.h" 
+//#include "ConfigurationManager.h" 
 #include "ClientConfiguration.h"
 
 namespace chronolog
@@ -115,7 +115,7 @@ class ChronologClientImpl;
 class Client
 {
 public:
-    Client(ChronoLog::ConfigurationManager const &);
+    //Client(ChronoLog::ConfigurationManager const &);
     
     Client(ClientPortalServiceConf const &);
 
